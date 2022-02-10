@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VanilaJSTodo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            list-style: none;
+            text-decoration: none;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .input-container input {
+            height: 35px;
+            border: 1px solid #252525;
+            padding: 0 10px;
+            width: 200px;
+        }
+
+        .input-container .create-btn {
+            margin-left: 5px;
+            height: 35px;
+            background-color: teal;
+            width: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .list-container {
+            border-top: 1px solid #ddd;
+            margin-top: 15px;
+            padding-top: 15px;
+        }
+
+        .list {
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+        .list input {
+            height: 30px;
+            border: 1px solid #252525;
+            padding: 0 10px;
+            width: 250px;
+        }
+
+        .list .btn {
+            height: 30px;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 50px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        .list .delete-btn {
+            background-color: tomato;
+        }
+
+        .list .update-btn {
+            background-color: cadetblue;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="todolist-container">
+        <h1>Todolist</h1>
+        <section class="input-container">
+            <input type="text" placeholder="write your todo" class="create-input">
+            <div class="create-btn">WRT</div>
+        </section>
+        <section class="list-container">
+            <ul></ul>
+        </section>
+    </div>
+    <script>
+        function List(app) {
+            this.app = app;
+            this.listContainer = this.app.querySelector('.list-container > ul')
+            this.createListInput = this.app.querySelector('.create-input');
+            this.createListBtn = this.app.querySelector('.create-btn');
+            this.listCount = -1;
+
+            this.createList = () => {
+                this.listCount++;
+
+                const saveListLocalStorege = (todo, number) => {
+                    const listObject = {
+                        number,
+                        todo
+                    };
+                    const data = JSON.stringify(listObject)
+                    const localList = localStorage.getItem("todoList");
+
+                    if (localList === null) {
+                        localStorage.setItem('todoList', `[${data}]`)
+                    } else {
+                        let listArray = JSON.parse(localList)
+
+                        listArray.push(listObject);
+
+                        const data = JSON.stringify(listArray);
+
+                        localStorage.setItem('todoList', data)
+                    }
+                }
+
+                const text = this.createListInput.value;
+                const listDom = document.createElement('li');
+                const html = `
+                    <p class="text">
+                        <input type="text" value="${text}">
+                    </p>
+                    <div class="delete-btn btn" data-list-number="${this.listCount}">DEL</div>
+                    <div class="update-btn btn" data-list-number="${this.listCount}">UPD</div>
+                `
+                listDom.innerHTML = html;
+                listDom.className = "list";
+                this.listContainer.appendChild(listDom)
+
+                const deleteBtns = this.listContainer.querySelectorAll('.delete-btn');
+                const updateBtns = this.listContainer.querySelectorAll('.update-btn');
+
+                deleteBtns.forEach(deleteBtn => {
+                    deleteBtn.addEventListener("click", (e) => {
+                        const {
+                            listNumber
+                        } = e.target.dataset;
+                        const parentNode = e.target.parentNode;
+                        parentNode.style.display = "none";
+
+                        this.deleteList(listNumber);
+                    });
+                })
+
+                updateBtns.forEach(updateBtn => {
+                    updateBtn.addEventListener("click", (e) => {
+                        const {
+                            listNumber
+                        } = e.target.dataset;
+                        const parentNode = e.target.parentNode;
+                        const updateText = parentNode.querySelector('input').value
+
+                        this.updateList(listNumber, updateText);
+                    });
+                })
+
+                saveListLocalStorege(text, this.listCount);
+            }
+
+            this.deleteList = (listId) => {
+                this.listCount--;
+
+                const localList = localStorage.getItem("todoList");
+                let listArray = JSON.parse(localList);
+
+                if (listArray !== null) {
+                    listArray.splice(listId, 1);
+
+                    const data = JSON.stringify(listArray);
+                    localStorage.setItem('todoList', data);
+                }
+            }
+
+            this.updateList = (listId, updateText) => {
+                const localList = localStorage.getItem("todoList");
+                let listArray = JSON.parse(localList);
+
+                if (listArray !== null) {
+                    listArray[listId].todo = updateText;
+                    const data = JSON.stringify(listArray);
+
+                    localStorage.setItem('todoList', data);
+                }
+            }
+
+            this.init = () => {
+                const loadList = () => {
+                    const localList = localStorage.getItem("todoList");
+                    const listArray = JSON.parse(localList);
+
+                    if (listArray !== null) {
+                        this.listCount = listArray.length - 1;
+                        const listMapping = listArray.map((list, index) => {
+                            return (`
+                                <li class="list">
+                                    <p class="text">
+                                        <input type="text" value="${list.todo}">
+                                    </p>
+                                    <div class="delete-btn btn" data-list-number="${index}">DEL</div>
+                                    <div class="update-btn btn" data-list-number="${index}">UPD</div>
+                                </li>
+                            `)
+                        }).join("")
+                        this.listContainer.innerHTML = listMapping;
+
+                        const deleteBtns = this.listContainer.querySelectorAll('.delete-btn');
+                        const updateBtns = this.listContainer.querySelectorAll('.update-btn');
+
+                        deleteBtns.forEach(deleteBtn => {
+                            deleteBtn.addEventListener("click", (e) => {
+                                const {
+                                    listNumber
+                                } = e.target.dataset;
+                                const parentNode = e.target.parentNode;
+                                parentNode.style.display = "none";
+
+                                this.deleteList(listNumber);
+                            });
+                        })
+
+                        updateBtns.forEach(updateBtn => {
+                            updateBtn.addEventListener("click", (e) => {
+                                const {
+                                    listNumber
+                                } = e.target.dataset;
+                                const parentNode = e.target.parentNode;
+                                const updateText = parentNode.querySelector('input').value
+
+                                this.updateList(listNumber, updateText);
+                            });
+                        })
+                    }
+                }
+
+                loadList();
+                this.createListBtn.addEventListener('click', this.createList)
+            }
+
+            this.init()
+        }
+
+        new List(document.querySelector("#todolist-container"))
+    </script>
+</body>
+
+</html>
