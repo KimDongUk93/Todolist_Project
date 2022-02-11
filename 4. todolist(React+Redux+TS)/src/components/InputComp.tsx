@@ -6,18 +6,23 @@ function InputComp() {
   const [text, setText] = useState("");
   const dispatch = useDispatch()
 
-  const createList = () => {
-    setText("");
-    dispatch(setList(text));
+  const setTextHandler = (e:React.ChangeEvent<HTMLInputElement>) : void =>{
+    const inputValue = e.target.value;
+    setText(inputValue);
   }
 
-  const removeAllListHandle = () => {
+  const createList = () : void => {
+    dispatch(setList(text));
+    setText("");
+  }
+
+  const removeAllListHandle = () : void => {
     dispatch(removeAllList());
   }
 
   return (
     <div className="input-comp">
-      <input type="text" placeholder="write todo" onChange={e=> setText(e.target.value)}/>
+      <input type="text" placeholder="write todo" onChange={setTextHandler} value={text}/>
       <p className="create-btn btn" onClick={createList}>WRT</p>
       <p className="remove-all-btn btn" onClick={removeAllListHandle}>DEL ALL</p>
     </div>

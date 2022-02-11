@@ -1,4 +1,4 @@
-import { GET_LISTS, SET_LIST, REMOVE_ALL_LIST,ListStateType ,ListActionTypes } from "../types/listTypes";
+import { GET_LISTS, SET_LIST, REMOVE_ALL_LIST, ListStateType ,ListActionTypes } from "../types/listTypes";
 //ListStateType : store.todoList의 초기값의 상태값을 정해놓은 타입, Array<string>으로 정했다.
 const initialState: ListStateType = {
     lists: []

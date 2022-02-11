@@ -1,4 +1,4 @@
-import { GET_LISTS, SET_LIST, REMOVE_ALL_LIST } from "../types/listTypes";
+import { GET_LISTS, SET_LIST, REMOVE_LIST, REMOVE_ALL_LIST } from "../types/listTypes";
 
 export const getList = () => {
     //listArray:string | null : localStorage.getItem을 하면 나오는 타입을 정해놈(이건 타입스크립트에서 정해 놓은거같다.)
@@ -7,9 +7,10 @@ export const getList = () => {
 
     if(listArray === null) {
         localStorage.setItem("todoList", `[]`);
-        listParsed = []
+        listParsed = ["할일을 입력해 주세요"]
+    } else {
+        listParsed = JSON.parse(listArray);
     }
-    if(listArray !== null) listParsed = JSON.parse(listArray);
 
     return {
         type: GET_LISTS,
@@ -22,16 +23,43 @@ export const setList = (text:string) => {
     let listParsed;
     
     if(listArray !== null) listParsed = JSON.parse(listArray);
+    
 
     listParsed.push(text);
-    
     const listStringfy = JSON.stringify(listParsed);
-
     localStorage.setItem("todoList", listStringfy);
 
     return {
         type: SET_LIST,
         payload: listParsed
+    }
+}
+
+export const removeList = (id:number) => {
+    const listArray:string | null = localStorage.getItem("todoList");
+    let listParsed;
+    let data;
+
+    if(listArray !== null) {
+        listParsed = JSON.parse(listArray);
+        listParsed.splice(id, 1);
+
+        if(listParsed.length === 0){
+            localStorage.removeItem("todoList");
+
+            return {
+                type: REMOVE_LIST,
+                list: []
+            }
+        } else {
+            data = JSON.stringify(listParsed);
+            localStorage.setItem("todoList", data);
+
+            return {
+                type: REMOVE_LIST,
+                list: listParsed
+            }
+        }
     }
 }
 
