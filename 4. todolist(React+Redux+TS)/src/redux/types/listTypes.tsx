@@ -1,6 +1,7 @@
 export const INIT_LISTS = "INIT_LISTS";
 export const GET_LISTS = "GET_LISTS";
 export const SET_LIST = "SET_LIST";
+export const UPDATE_LIST = "UPDATE_LIST";
 export const REMOVE_LIST = "REMOVE_LIST";
 export const REMOVE_ALL_LIST = "REMOVE_ALL_LIST";
 
@@ -9,6 +10,7 @@ export interface ListStateType {
 }
 
 export interface TodoListPropsType {
+  number: number;
   item: string;
   index: number;
   removeList: (id: number) => void
@@ -21,6 +23,16 @@ interface GetListActionType {
 
 interface SetListActionType {
   type: typeof SET_LIST;
+  payload: Array<string>;
+}
+
+interface RemoveListActionType {
+  type: typeof REMOVE_LIST;
+  payload: Array<string>;
+}
+
+interface UpdateListActionType {
+  type: typeof REMOVE_LIST;
   payload: Array<string>;
 }
 
@@ -38,4 +50,6 @@ export type ListActionTypes =
   | GetListActionType
   | SetListActionType
   | RemoveAllActionType
+  | UpdateListActionType
   | InitActionType
+  | RemoveListActionType

@@ -9,7 +9,6 @@ function ListComp(){
   //RootState : store의 state에 적용되는 타입
   const lists = useSelector((state: RootState) => state.todoList.lists);
   
-  //setA(lists)
   const removeListHandler = (id:number):void => {
     dispatch(removeList(id));
   }
@@ -21,8 +20,10 @@ function ListComp(){
   return (
     <div className="list-comp">
       <ul>
-        {lists ? 
-            lists.map((item, index) => <List item={item} index={index} removeList={removeListHandler}/>) : 
+        {lists !== undefined ? 
+            lists.map((item, index) => (
+              <List number={index} item={item} index={index} removeList={removeListHandler}/>
+              )) : 
             <li>no list</li>
         }
       </ul>

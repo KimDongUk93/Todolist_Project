@@ -5,12 +5,7 @@ export const getList = () => {
     const listArray :string | null = localStorage.getItem("todoList");
     let listParsed;
 
-    if(listArray === null) {
-        localStorage.setItem("todoList", `[]`);
-        listParsed = ["할일을 입력해 주세요"]
-    } else {
-        listParsed = JSON.parse(listArray);
-    }
+    if(listArray !== null) listParsed = JSON.parse(listArray);
 
     return {
         type: GET_LISTS,
@@ -19,13 +14,36 @@ export const getList = () => {
 }
 //text:string : InputComp에서 dispatch(setList(text))로 넘어온 text의 타입을 string으로 고정
 export const setList = (text:string) => {
-    const listArray:string | null = localStorage.getItem("todoList");
+    let listArray:string | null = localStorage.getItem("todoList");
     let listParsed;
     
-    if(listArray !== null) listParsed = JSON.parse(listArray);
+    if(listArray !== null) {
+        listParsed = JSON.parse(listArray);
+    } else {
+        localStorage.setItem("todoList", `[]`);
+        const newlistArray = localStorage.getItem("todoList");
+        if(newlistArray !== null) listParsed = JSON.parse(newlistArray);
+    }
     
-
     listParsed.push(text);
+    const listStringfy = JSON.stringify(listParsed);
+    localStorage.setItem("todoList", listStringfy);
+
+    return {
+        type: SET_LIST,
+        payload: listParsed
+    }
+}
+
+export const updateList = (index:number, text:string | undefined) => {
+    let listArray:string | null = localStorage.getItem("todoList");
+    let listParsed;
+    
+    if(listArray !== null) {
+        listParsed = JSON.parse(listArray);
+        listParsed[index] = text;
+    }
+    
     const listStringfy = JSON.stringify(listParsed);
     localStorage.setItem("todoList", listStringfy);
 
@@ -49,7 +67,7 @@ export const removeList = (id:number) => {
 
             return {
                 type: REMOVE_LIST,
-                list: []
+                payload: undefined
             }
         } else {
             data = JSON.stringify(listParsed);
@@ -57,7 +75,7 @@ export const removeList = (id:number) => {
 
             return {
                 type: REMOVE_LIST,
-                list: listParsed
+                payload: listParsed
             }
         }
     }
